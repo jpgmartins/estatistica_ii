@@ -1,0 +1,347 @@
+---
+title: "*Gabarito - Lista 1 - Estatística II*"
+author: "João Pedro"
+date: "2023-08-17"
+output: html_document
+---
+
+# *Questão 1*
+
+## a)
+
+\[
+\mu = 100
+\]
+\[
+\sigma = 16
+\]
+
+Pede-se: \(P(X > 120)\)
+
+Para solucionar este problema utilizando a tabela da Normal Padrão, é necessário
+primeiro achar o valor \(Z\) correspondente ao valor de interesse (120). Obtemos este valor
+via padronização. Recordando:
+
+\[
+Z = \frac{X - \mu}{\sigma}
+\]
+
+Assim, temos:
+
+\[
+Z = \frac{120 - 100}{16} = \frac{20}{16} = 1,25
+\]
+
+Consultando a tabela da Normal Padrão, observamos que 1,25 corresponde a 0,8944.
+Este, no entanto, não é o resultado final. A tabela da Normal Padrão apresenta valores
+referentes à área abaixo da curva sempre da esquerda para a direita (a área em vermelho
+abaixo):
+
+\[
+X \sim N(0,1) 
+\]
+\[
+P(X \geq x) = \int_{-\infty}^{x} \phi(t) \, dt
+\]
+
+Agora, vamos criar o gráfico ilustrativo da Distribuição Normal Padrão:
+
+```{r, echo=TRUE}
+# Função para calcular a densidade da distribuição normal padrão
+dnorm_range <- function(x, mean = 0, sd = 1) {
+  dnorm(x, mean, sd) * (x >= -Inf & x <= 1)
+}
+
+# Carregar a biblioteca ggplot2 para criar gráficos
+library(ggplot2)
+
+# Criar um gráfico da curva normal padrão com a área vermelha até 1
+ggplot(data.frame(x = c(-4, 4)), aes(x = x)) +
+  stat_function(fun = dnorm_range, geom = "area", fill = "red") +
+  stat_function(fun = dnorm, geom = "line", color = "black") +
+  coord_cartesian(xlim = c(-4, 4)) +
+  theme_minimal() +
+  labs(x = NULL, y = NULL) +
+  theme(legend.position = "none", panel.grid = element_blank(), axis.text.y = element_blank())
+``` 
+
+O problema pede a probabilidade de \(X > 120\). Ou seja, pede-se a área da cauda direita
+(em branco). Resolver isto é simples: basta subtrair de 100\% a área referente ao \(Z\)
+encontrado:
+
+\[
+P(X > 120) = 1 - 0,8944 = 0,1056
+\]
+\[
+P(X > 120) = 10,56\%
+\]
+
+## b)
+
+Pede-se: \(P(90 < X < 110)\)
+
+Neste exercício, treina-se novamente a percepção da área abaixo do gráfico da curva Normal Padrão. A probabilidade pedida é referente à área em cinza escuro do esquema abaixo:
+
+``` {r}
+# Importar biblioteca para gráficos
+library(tidyverse)
+
+# Função para calcular a densidade da distribuição normal
+dnorm_range <- function(x, mean = 100, sd = 16) {
+  dnorm(x, mean, sd) * (x >= 90 & x <= 110)
+}
+
+# Criar um gráfico da curva normal com a área sombreada
+ggplot(data.frame(x = c(50, 150)), aes(x = x)) +
+  stat_function(fun = dnorm_range, geom = "area", fill = "darkgray") +
+  stat_function(fun = dnorm, geom = "line", color = "black", args = list(mean = 100, sd = 16)) +
+  coord_cartesian(xlim = c(50, 150), ylim = c(0, 0.03)) +  # Define os limites dos eixos
+  theme_minimal() +
+  labs(x = NULL, y = NULL) +
+  theme(legend.position = "none", panel.grid = element_blank(), axis.text.y = element_blank())
+```
+
+A ideia é subtrair a área (1) pela área (2):
+
+```{r}
+# (1)
+
+# Função para calcular a densidade da distribuição normal
+dnorm_range_above_90 <- function(x, mean = 100, sd = 16) {
+  dnorm(x, mean, sd) * (x >= 90)
+}
+
+# Criar um gráfico da área sombreada até x = 90 vindo de mais infinito
+ggplot(data.frame(x = c(50, 150)), aes(x = x)) +
+  stat_function(fun = dnorm_range_above_90, geom = "area", fill = "darkgray") +
+  stat_function(fun = dnorm, geom = "line", color = "black", args = list(mean = 100, sd = 16)) +
+  coord_cartesian(xlim = c(50, 150), ylim = c(0, 0.03)) +  # Define os limites dos eixos
+  theme_minimal() +
+  labs(x = NULL, y = NULL) +
+  theme(legend.position = "none", panel.grid = element_blank(), axis.text.y = element_blank())
+
+```
+
+```{r}
+
+# (2)
+
+# Função para calcular a densidade da distribuição normal
+dnorm_range_above_110 <- function(x, mean = 100, sd = 16) {
+  dnorm(x, mean, sd) * (x >= 110)
+}
+
+# Criar um gráfico da área sombreada até x = 110 vindo de mais infinito
+ggplot(data.frame(x = c(50, 150)), aes(x = x)) +
+  stat_function(fun = dnorm_range_above_110, geom = "area", fill = "darkgray") +
+  stat_function(fun = dnorm, geom = "line", color = "black", args = list(mean = 100, sd = 16)) +
+  coord_cartesian(xlim = c(50, 150), ylim = c(0, 0.03)) +  # Define os limites dos eixos
+  theme_minimal() +
+  labs(x = NULL, y = NULL) +
+  theme(legend.position = "none", panel.grid = element_blank(), axis.text.y = element_blank())
+```
+
+
+\\
+\[
+Z = \frac{90 - 100}{16} = -0,625
+\]
+
+
+\[
+Z = \frac{110 - 100}{16} = 0,625
+\]
+
+
+\\
+\[
+P(90 < X < 110) = P(Z < 0,625) - P(Z < -0,625)
+\]
+
+Usando a tabela da Normal Padrão, obtemos:
+
+\[
+P(Z < 0,625) = 0,73405
+\]
+\[
+P(Z < -0,625) = 0,26595
+\]
+
+Portanto,
+
+\[
+P(90 < X < 110) = 0,73405 - 0,26595 = 0,4681
+\]
+\[
+P(90 < X < 110) \approx 46,81\%
+\]
+
+
+## c)
+
+
+Assumindo que os indivíduos de maior QI são os que entram nas universidades, temos:
+
+\begin{itemize}
+    \item QI marginal do passado:
+\end{itemize}
+
+O \(z\) que representa 10\% da população é calculado a partir do valor da probabilidade de \(Pr(z) = 1 - 0,1 \Rightarrow Pr(z) = 0,90\). Para essa probabilidade, o valor de \(z = 1,28\). Retomando a equação \(z = \frac{X - \mu}{\sigma}\), tem-se:
+
+\[
+1,28 = \frac{X - 100}{16} \Rightarrow X = 16 \cdot 1,28 + 100 \Rightarrow X = 120,48
+\]
+
+QI marginal do passado: \(120,48\)
+
+\begin{itemize}
+    \item QI marginal do presente:
+\end{itemize}
+
+O \(z\) que representa 30\% da população é calculado a partir do valor da probabilidade de \(Pr(z) = 1 - 0,3 \Rightarrow Pr(z) = 0,70\). Para essa probabilidade, o valor de \(z = 0,525\). Tem-se:
+
+\[
+0,525 = \frac{X - 100}{16} \Rightarrow X = 16 \cdot 0,525 + 100 \Rightarrow X = 108,4
+\]
+
+QI marginal do presente: \(108,4\)
+
+# Questão 2
+
+## a)
+
+\[
+\mu = 100
+\]
+\[
+\sigma = 16
+\]
+
+Por se tratar de uma amostra da população, a distribuição da média amostral segue o formato:
+\[
+\bar{X} \sim N\left(\mu, \frac{\sigma^2}{n}\right)
+\]
+
+Portanto, a distribuição de probabilidades da média amostral de 10 indivíduos será:
+\[
+\bar{X} \sim N\left(100, \frac{16^2}{10}\right)
+\]
+
+## b)
+
+A partir de \(\bar{X} \sim N\left(100, \frac{16^2}{10}\right)\), calcula-se o \(z\):
+\[
+z = \frac{x - \mu}{\sigma} = \frac{110 - 100}{\sqrt{\frac{16^2}{10}}} = \frac{10}{\sqrt{25.6}} = \frac{10}{5.05} = 1.98
+\]
+\[
+Pr(1.98) = 0.9761
+\]
+\[
+Pr(\bar{X} > 110) = 1 - 0.9761 = 0.0239
+\]
+\[
+Pr(\bar{X} > 110) = 2.39\%
+\]
+
+## c)
+
+Seria esperada a mesma probabilidade do item (b), 2.39\%. Porque a distribuição das amostras seguintes também seria normal (por conta da distribuição da população ser dada como normal), bem como a média (100), desvio-padrão (16) e o número de observações de cada amostra (10).
+
+## d)
+
+Como já é conhecida a \(Pr(\bar{X} > 110)\), deve-se calcular a \(Pr(\bar{X} < 90)\):
+\[
+z = \frac{x - \mu}{\sigma} = \frac{90 - 100}{\sqrt{\frac{16^2}{10}}} = \frac{-10}{\sqrt{25.6}} = \frac{-10}{5,05} = -1.98
+\]
+\[
+Pr(1.98) = 0.9761
+\]
+\[
+Pr(\bar{X} < 90) = 1 - 0.9761 = 0.0239
+\]
+\[
+Pr(\bar{X} < 90) = 2.39\%
+\]
+
+Por causa da diferença entre 90 e a média 100 ser a mesma de 110 (b) e a média, a probabilidade de \(\bar{X}\) ser menor que 90 é a mesma que a probabilidade de \(\bar{X}\) ser maior que 110, ou seja, 2.39\%.
+
+Para se calcular o que o exercício pede \(Pr(90 < \bar{X} < 110)\), subtrai-se duas vezes o valor de 2.39\% da probabilidade total:
+\[
+Pr(90 < \bar{X} < 110) = 1 - 2(0.0239) = 1 - 0.0478 = 0.9522
+\]
+\[
+Pr(90 < \bar{X} < 110) = 95.22\%
+\]
+
+O resultado é bem maior que o do item (b) do exercício anterior porque ele se trata da distribuição da população (46.81\%), enquanto que a probabilidade de 95.22\% se refere à distribuição da média amostral que possui dispersão muito menor do que a dispersão da distribuição da população.
+
+## e)
+
+De acordo com o exercício anterior, o QI do estudante "marginal" atual é de 108.4. Sendo assim, a probabilidade de que uma amostra de 10 estudantes universitários tenha média maior que 110 é alta. A distribuição do QI dos estudantes não é Normal, mas sim assimétrica à direita, se tratando da cauda superior da distribuição normal. Por conta de o número de observações ser baixo (10), não é possível utilizar-se do Teorema do Limite Central. Portanto, não se pode calcular a probabilidade em questão.
+
+## f)
+
+Com o primeiro adulto tendo QI de 150, é possível utilizar o valor da média da população para calcular o QI médio da amostra. Sendo assim, temos:
+\[
+\frac{150 + 9 \cdot 100}{10} = \frac{150 + 900}{10} = \frac{1050}{10} = 105
+\]
+O QI médio da amostra é 105.
+
+# Questão 3
+
+## a)
+
+\[
+\mu = 10000
+\]
+\[
+\sigma = 2500
+\]
+\[
+n = 40
+\]
+
+Com \(n = 40\), é possível utilizar o Teorema do Limite Central a fim de assumir que a distribuição amostral é uma normal. A distribuição de probabilidades da média amostral será:
+\[
+\bar{X} \sim N\left(\mu, \frac{\sigma^2}{n}\right)
+\]
+Portanto, a distribuição de probabilidades da média amostral será:
+\[
+\bar{X} \sim N\left(10000, \frac{2500^2}{40}\right)
+\]
+
+## b)
+
+A partir de \(\bar{X} \sim N\left(10000, \frac{2500^2}{40}\right)\), calcula-se o \(z\):
+\[
+z = \frac{x - \mu}{\sigma} = \frac{10500 - 10000}{\sqrt{\frac{2500^2}{40}}} = \frac{500}{\sqrt{156250}} = \frac{500}{395.28} = 1.26
+\]
+\[
+Pr(1.26) = 0.8962
+\]
+\[
+Pr(\bar{X} > 10500) = 1 - 0.8962 = 0.1038
+\]
+\[
+Pr(\bar{X} > 10500) = 10.38\%
+\]
+
+## c)
+
+A partir de \(\bar{X} \sim N\left(10000, \frac{2500^2}{40}\right)\), calcula-se o \(z\):
+\[
+z = \frac{x - \mu}{\sigma} = \frac{8000 - 10000}{\sqrt{\frac{2500^2}{40}}} = \frac{-2000}{\sqrt{156250}} = \frac{-2000}{395.28} = -5.05
+\]
+\[
+Pr(5.05) \approx 1
+\]
+\[
+Pr(\bar{X} < 8000) \approx 1 - 1 = 0
+\]
+\[
+Pr(\bar{X} < 8000) \approx 0\%
+\]
+
+## d)
+
+Se o tamanho da amostra fosse 10, não seria possível utilizar o Teorema do Limite Central, pois não seria possível assumir que a distribuição da amostra é normal. O número de observações (10) é baixo e a distribuição da população não é conhecida.
