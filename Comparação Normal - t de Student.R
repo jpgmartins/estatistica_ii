@@ -83,3 +83,5 @@ ggplot(data, aes(x = x, y = density, color = distribution, linetype = distributi
   scale_color_manual(values = c("Normal" = "blue", "t (df=100)" = "pink")) +
   scale_linetype_manual(values = c("Normal" = "solid", "t (df=100)" = "twodash")) +
   theme_minimal()
+
+#
